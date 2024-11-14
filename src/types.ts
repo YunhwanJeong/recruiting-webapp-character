@@ -9,17 +9,6 @@ export type Attributes = {
 
 export type Class = "Barbarian" | "Wizard" | "Bard";
 
-export type Skill = {
-  name: string;
-  attributeModifier: keyof Attributes;
-};
-
-export type Character = {
-  id: string;
-  attributes: Attributes;
-  skillPoints: SkillPoints;
-};
-
 export type SkillPoints = {
   [key: string]: number;
 };
@@ -29,3 +18,8 @@ export type SkillCheckResult = {
   total: number;
   success: boolean;
 };
+
+export interface Character {
+  attributes: Attributes;
+  skillPoints: SkillPoints;
+}

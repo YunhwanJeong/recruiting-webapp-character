@@ -7,22 +7,23 @@ interface AttributeSectionProps {
   onIncrement: (attr: keyof Attributes) => void;
   onDecrement: (attr: keyof Attributes) => void;
 }
-
-export const AttributeSection = ({
+export default function AttributeSection({
   attributes,
   onIncrement,
   onDecrement,
-}: AttributeSectionProps) => (
-  <section className="column">
-    <h2>Attributes</h2>
-    {ATTRIBUTE_LIST.map((attribute) => (
-      <div key={attribute} className="attribute-row">
-        <strong>{attribute}: </strong>
-        <button onClick={() => onDecrement(attribute)}>-</button>
-        <span>{attributes[attribute]}</span>
-        <button onClick={() => onIncrement(attribute)}>+</button>
-        <span>Modifier: {calculateModifier(attributes[attribute])}</span>
-      </div>
-    ))}
-  </section>
-);
+}: AttributeSectionProps) {
+  return (
+    <section className="column">
+      <h2>Attributes</h2>
+      {ATTRIBUTE_LIST.map((attribute) => (
+        <div key={attribute} className="attribute-row">
+          <strong>{attribute}: </strong>
+          <button onClick={() => onDecrement(attribute)}>-</button>
+          <span>{attributes[attribute]}</span>
+          <button onClick={() => onIncrement(attribute)}>+</button>
+          <span>Modifier: {calculateModifier(attributes[attribute])}</span>
+        </div>
+      ))}
+    </section>
+  );
+}

@@ -1,13 +1,15 @@
 import { useState } from "react";
 import "./App.css";
-import { AttributeSection } from "./components/AttributeSection";
-import { ATTRIBUTE_LIST, CLASS_LIST, SKILL_LIST } from "./consts";
+import AttributeSection from "./components/AttributeSection";
+import ClassSection from "./components/ClassSection";
+import SkillCheck from "./components/SkillCheck";
+import SkillsSection from "./components/SkillsSection";
+import { ATTRIBUTE_LIST, SKILL_LIST } from "./consts";
 import type { Attributes, Class, SkillCheckResult, SkillPoints } from "./types";
 import {
   calculateModifier,
   calculateTotalSkillPoints,
   calculateUsedSkillPoints,
-  meetsClassRequirements,
   performSkillCheck,
 } from "./utils/character";
 
@@ -41,10 +43,7 @@ export default function App() {
       0
     );
     if (totalPoints < 70) {
-      setAttributes((prev) => ({
-        ...prev,
-        [attribute]: prev[attribute] + 1,
-      }));
+      setAttributes((prev) => ({ ...prev, [attribute]: prev[attribute] + 1 }));
     }
   };
 
@@ -57,10 +56,7 @@ export default function App() {
 
   const handleIncrementSkill = (skillName: string) => {
     if (remainingSkillPoints > 0) {
-      setSkillPoints((prev) => ({
-        ...prev,
-        [skillName]: prev[skillName] + 1,
-      }));
+      setSkillPoints((prev) => ({ ...prev, [skillName]: prev[skillName] + 1 }));
     }
   };
 
@@ -90,97 +86,31 @@ export default function App() {
       </header>
       <main className="App-main">
         <div className="container">
-          <section className="column-full">
-            <h2>Skill Check</h2>
-            <label>
-              Select Skill:
-              <select
-                value={selectedSkill}
-                onChange={(e) => setSelectedSkill(e.target.value)}
-              >
-                <option value="">Select Skill</option>
-                {SKILL_LIST.map((skill) => (
-                  <option key={skill.name} value={skill.name}>
-                    {skill.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Difficulty Class (DC):
-              <input
-                type="number"
-                value={difficultyClass}
-                onChange={(e) => setDifficultyClass(Number(e.target.value))}
-              />
-            </label>
-            <button onClick={handleSkillCheck}>Roll</button>
-            {rollResult && (
-              <p>
-                {rollResult.roll}, Total: {rollResult.total} -{" "}
-                {rollResult.success ? "Success" : "Failure"}
-              </p>
-            )}
-          </section>
+          <SkillCheck
+            selectedSkill={selectedSkill}
+            difficultyClass={difficultyClass}
+            rollResult={rollResult}
+            onSkillSelect={setSelectedSkill}
+            onDifficultyChange={setDifficultyClass}
+            onRoll={handleSkillCheck}
+          />
           <AttributeSection
             attributes={attributes}
             onIncrement={handleIncrementAttribute}
             onDecrement={handleDecrementAttribute}
           />
-          <section className="column">
-            <h2>Classes</h2>
-            {(Object.keys(CLASS_LIST) as Class[]).map((className) => (
-              <div
-                key={className}
-                className={`class-item ${
-                  meetsClassRequirements(attributes, className)
-                    ? "eligible"
-                    : ""
-                }`}
-                onClick={() => setSelectedClass(className)}
-              >
-                {className}
-              </div>
-            ))}
-            {selectedClass && (
-              <div className="class-requirements">
-                <h3>Requirements for {selectedClass}</h3>
-                {Object.entries(CLASS_LIST[selectedClass] || {}).map(
-                  ([attr, value]) => (
-                    <div key={attr}>
-                      {attr}: {value}
-                    </div>
-                  )
-                )}
-              </div>
-            )}
-          </section>
-          <section className="column">
-            <h2>Skills</h2>
-            <div>Total skill points available: {remainingSkillPoints}</div>
-            {SKILL_LIST.map((skill) => {
-              const modifier = calculateModifier(
-                attributes[skill.attributeModifier]
-              );
-              const totalSkillValue = skillPoints[skill.name] + modifier;
-              return (
-                <div key={skill.name} className="skill-row">
-                  <span>{skill.name}:</span>
-                  <button onClick={() => handleDecrementSkill(skill.name)}>
-                    -
-                  </button>
-                  <span>{skillPoints[skill.name]}</span>
-                  <button onClick={() => handleIncrementSkill(skill.name)}>
-                    +
-                  </button>
-                  <span>
-                    Modifier ({skill.attributeModifier}): {modifier}
-                  </span>
-                  <span>Total: {totalSkillValue}</span>
-                </div>
-              );
-            })}
-          </section>
+          <ClassSection
+            attributes={attributes}
+            selectedClass={selectedClass}
+            onClassSelect={setSelectedClass}
+          />
+          <SkillsSection
+            attributes={attributes}
+            skillPoints={skillPoints}
+            remainingPoints={remainingSkillPoints}
+            onIncrement={handleIncrementSkill}
+            onDecrement={handleDecrementSkill}
+          />
         </div>
       </main>
     </div>
