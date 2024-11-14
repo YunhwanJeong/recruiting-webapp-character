@@ -1,19 +1,15 @@
-import { useReducer, useState } from "react";
+import { useState } from "react";
 import "./App.css";
+import { AttributeSection } from "./components/AttributeSection";
 import { ATTRIBUTE_LIST, CLASS_LIST, SKILL_LIST } from "./consts";
-import { Attributes, Class } from "./types";
-
-type Action =
-  | { type: "INCREMENT"; attribute: keyof Attributes }
-  | { type: "DECREMENT"; attribute: keyof Attributes };
-
-type SkillAction =
-  | { type: "INCREMENT_SKILL"; skill: string }
-  | { type: "DECREMENT_SKILL"; skill: string };
-
-type SkillPoints = {
-  [key: string]: number;
-};
+import type { Attributes, Class, SkillCheckResult, SkillPoints } from "./types";
+import {
+  calculateModifier,
+  calculateTotalSkillPoints,
+  calculateUsedSkillPoints,
+  meetsClassRequirements,
+  performSkillCheck,
+} from "./utils/character";
 
 const initialAttributes: Attributes = ATTRIBUTE_LIST.reduce(
   (acc, attr) => ({ ...acc, [attr]: 10 }),
@@ -25,95 +21,65 @@ const initialSkillPoints: SkillPoints = SKILL_LIST.reduce(
   {} as SkillPoints
 );
 
-const attributeReducer = (state: Attributes, action: Action): Attributes => {
-  switch (action.type) {
-    case "INCREMENT":
-      return { ...state, [action.attribute]: state[action.attribute] + 1 };
-    case "DECREMENT":
-      return {
-        ...state,
-        [action.attribute]: Math.max(0, state[action.attribute] - 1),
-      };
-    default:
-      return state;
-  }
-};
-
-const skillPointsReducer = (
-  state: SkillPoints,
-  action: SkillAction
-): SkillPoints => {
-  switch (action.type) {
-    case "INCREMENT_SKILL":
-      return { ...state, [action.skill]: state[action.skill] + 1 };
-    case "DECREMENT_SKILL":
-      return {
-        ...state,
-        [action.skill]: Math.max(0, state[action.skill] - 1),
-      };
-    default:
-      return state;
-  }
-};
-
-const calculateModifier = (value: Attributes[keyof Attributes]) => {
-  return Math.floor((value - 10) / 2);
-};
-
-function App() {
-  const [attributes, dispatchAttributes] = useReducer(
-    attributeReducer,
-    initialAttributes
-  );
-  const [skillPoints, dispatchSkillPoints] = useReducer(
-    skillPointsReducer,
-    initialSkillPoints
-  );
+export default function App() {
+  const [attributes, setAttributes] = useState<Attributes>(initialAttributes);
+  const [skillPoints, setSkillPoints] =
+    useState<SkillPoints>(initialSkillPoints);
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [selectedSkill, setSelectedSkill] = useState<string>("");
   const [difficultyClass, setDifficultyClass] = useState<number>(0);
-  const [rollResult, setRollResult] = useState<string | null>(null);
+  const [rollResult, setRollResult] = useState<SkillCheckResult | null>(null);
 
-  const intelligenceModifier = calculateModifier(attributes["Intelligence"]);
-  const totalSkillPoints = 10 + 4 * intelligenceModifier;
-  const usedSkillPoints = Object.values(skillPoints).reduce(
-    (acc, points) => acc + points,
-    0
-  );
+  const intelligenceModifier = calculateModifier(attributes.Intelligence);
+  const totalSkillPoints = calculateTotalSkillPoints(intelligenceModifier);
+  const usedSkillPoints = calculateUsedSkillPoints(skillPoints);
   const remainingSkillPoints = totalSkillPoints - usedSkillPoints;
 
-  const meetsClassRequirements = (className: Class) => {
-    const classRequirements = CLASS_LIST[className];
-    return ATTRIBUTE_LIST.every(
-      (attr) => attributes[attr] >= classRequirements[attr]
+  const handleIncrementAttribute = (attribute: keyof Attributes) => {
+    const totalPoints = Object.values(attributes).reduce(
+      (sum, val) => sum + val,
+      0
     );
-  };
-
-  const incrementSkill = (skillName: string) => {
-    if (remainingSkillPoints > 0) {
-      dispatchSkillPoints({ type: "INCREMENT_SKILL", skill: skillName });
+    if (totalPoints < 70) {
+      setAttributes((prev) => ({
+        ...prev,
+        [attribute]: prev[attribute] + 1,
+      }));
     }
   };
 
-  const decrementSkill = (skillName: string) => {
-    dispatchSkillPoints({ type: "DECREMENT_SKILL", skill: skillName });
+  const handleDecrementAttribute = (attribute: keyof Attributes) => {
+    setAttributes((prev) => ({
+      ...prev,
+      [attribute]: Math.max(0, prev[attribute] - 1),
+    }));
   };
 
-  const performSkillCheck = () => {
+  const handleIncrementSkill = (skillName: string) => {
+    if (remainingSkillPoints > 0) {
+      setSkillPoints((prev) => ({
+        ...prev,
+        [skillName]: prev[skillName] + 1,
+      }));
+    }
+  };
+
+  const handleDecrementSkill = (skillName: string) => {
+    setSkillPoints((prev) => ({
+      ...prev,
+      [skillName]: Math.max(0, prev[skillName] - 1),
+    }));
+  };
+
+  const handleSkillCheck = () => {
     if (selectedSkill) {
-      // Ensure `selectedSkill` exists in the attributes
-      const skill = SKILL_LIST.find((s) => s.name === selectedSkill);
-      if (skill) {
-        const modifier = calculateModifier(
-          attributes[skill.attributeModifier] || 0
-        );
-        const roll = Math.floor(Math.random() * 20) + 1;
-        const total = roll + modifier + (skillPoints[selectedSkill] || 0);
-        const success = total >= difficultyClass;
-        setRollResult(
-          `Roll: ${roll}, Total: ${total} - ${success ? "Success" : "Failure"}`
-        );
-      }
+      const result = performSkillCheck(
+        selectedSkill,
+        attributes,
+        skillPoints,
+        difficultyClass
+      );
+      if (result) setRollResult(result);
     }
   };
 
@@ -148,42 +114,28 @@ function App() {
                 onChange={(e) => setDifficultyClass(Number(e.target.value))}
               />
             </label>
-            <button onClick={performSkillCheck}>Roll</button>
-            {rollResult && <p>{rollResult}</p>}
+            <button onClick={handleSkillCheck}>Roll</button>
+            {rollResult && (
+              <p>
+                {rollResult.roll}, Total: {rollResult.total} -{" "}
+                {rollResult.success ? "Success" : "Failure"}
+              </p>
+            )}
           </section>
-          <section className="column">
-            <h2>Attributes</h2>
-            {ATTRIBUTE_LIST.map((attribute) => (
-              <div key={attribute} className="attribute-row">
-                <strong>{attribute}: </strong>
-                <button
-                  onClick={() =>
-                    dispatchAttributes({ type: "DECREMENT", attribute })
-                  }
-                >
-                  -
-                </button>
-                <span>{attributes[attribute]}</span>
-                <button
-                  onClick={() =>
-                    dispatchAttributes({ type: "INCREMENT", attribute })
-                  }
-                >
-                  +
-                </button>
-                <span>
-                  Modifier: {calculateModifier(attributes[attribute])}
-                </span>
-              </div>
-            ))}
-          </section>
+          <AttributeSection
+            attributes={attributes}
+            onIncrement={handleIncrementAttribute}
+            onDecrement={handleDecrementAttribute}
+          />
           <section className="column">
             <h2>Classes</h2>
             {(Object.keys(CLASS_LIST) as Class[]).map((className) => (
               <div
                 key={className}
                 className={`class-item ${
-                  meetsClassRequirements(className) ? "eligible" : ""
+                  meetsClassRequirements(attributes, className)
+                    ? "eligible"
+                    : ""
                 }`}
                 onClick={() => setSelectedClass(className)}
               >
@@ -214,9 +166,13 @@ function App() {
               return (
                 <div key={skill.name} className="skill-row">
                   <span>{skill.name}:</span>
-                  <button onClick={() => decrementSkill(skill.name)}>-</button>
+                  <button onClick={() => handleDecrementSkill(skill.name)}>
+                    -
+                  </button>
                   <span>{skillPoints[skill.name]}</span>
-                  <button onClick={() => incrementSkill(skill.name)}>+</button>
+                  <button onClick={() => handleIncrementSkill(skill.name)}>
+                    +
+                  </button>
                   <span>
                     Modifier ({skill.attributeModifier}): {modifier}
                   </span>
@@ -230,5 +186,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
