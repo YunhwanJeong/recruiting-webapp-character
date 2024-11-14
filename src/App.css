@@ -36,19 +36,6 @@
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -67,4 +54,21 @@
   display: flex;
   justify-content: center;
   gap: 8px;
+}
+
+.class-item {
+  padding: 4px;
+  cursor: pointer;
+}
+
+.class-item.eligible {
+  color: green;
+  font-weight: bold;
+}
+
+.class-requirements {
+  margin-top: 8px;
+  padding: 12px;
+  background-color: dimgray;
+  border-radius: 4px;
 }

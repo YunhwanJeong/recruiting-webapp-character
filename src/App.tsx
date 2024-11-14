@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { useReducer, useState } from "react";
 import "./App.css";
 import { ATTRIBUTE_LIST, CLASS_LIST, SKILL_LIST } from "./consts";
 
@@ -35,6 +35,14 @@ const calculateModifier = (value: number) => {
 
 function App() {
   const [attributes, dispatch] = useReducer(reducer, initialAttributes);
+  const [selectedClass, setSelectedClass] = useState<string | null>(null);
+
+  const meetsClassRequirements = (className: string) => {
+    const classRequirements = CLASS_LIST[className];
+    return ATTRIBUTE_LIST.every(
+      (attr) => attributes[attr] >= classRequirements[attr]
+    );
+  };
 
   return (
     <div className="App">
@@ -68,8 +76,28 @@ function App() {
           <section className="column">
             <h2>Classes</h2>
             {Object.keys(CLASS_LIST).map((className) => (
-              <div key={className}>{className}</div>
+              <div
+                key={className}
+                className={`class-item ${
+                  meetsClassRequirements(className) ? "eligible" : ""
+                }`}
+                onClick={() => setSelectedClass(className)}
+              >
+                {className}
+              </div>
             ))}
+            {selectedClass && (
+              <div className="class-requirements">
+                <h3>Requirements for {selectedClass}</h3>
+                {Object.entries(CLASS_LIST[selectedClass] as Attributes).map(
+                  ([attr, value]) => (
+                    <div key={attr}>
+                      {attr}: {value}
+                    </div>
+                  )
+                )}
+              </div>
+            )}
           </section>
           <section className="column">
             <h2>Skills</h2>
