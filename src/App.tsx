@@ -42,41 +42,45 @@ function App() {
         <h1>React Coding Exercise</h1>
       </header>
       <main className="App-main">
-        <section>
-          <h2>Attributes</h2>
-          {ATTRIBUTE_LIST.map((attribute) => (
-            <div key={attribute}>
-              <h3>{attribute}</h3>
-              <button
-                onClick={() => dispatch({ type: "DECREMENT", attribute })}
-              >
-                -
-              </button>
-              <span>{attributes[attribute]}</span>
-              <button
-                onClick={() => dispatch({ type: "INCREMENT", attribute })}
-              >
-                +
-              </button>
-              <span>Modifier: {calculateModifier(attributes[attribute])}</span>
-            </div>
-          ))}
-        </section>
-        <section>
-          <h2>Classes</h2>
-          {Object.keys(CLASS_LIST).map((className) => (
-            <div key={className}>{className}</div>
-          ))}
-        </section>
-        <section>
-          <h2>Skills</h2>
-          {SKILL_LIST.map((skill) => (
-            <div key={skill.name}>
-              <span>{skill.name}</span>
-              <span>(Modifier: {skill.attributeModifier})</span>
-            </div>
-          ))}
-        </section>
+        <div className="container">
+          <section className="column">
+            <h2>Attributes</h2>
+            {ATTRIBUTE_LIST.map((attribute) => (
+              <div key={attribute}>
+                <h3>{attribute}</h3>
+                <button
+                  onClick={() => dispatch({ type: "DECREMENT", attribute })}
+                >
+                  -
+                </button>
+                <span>{attributes[attribute]}</span>
+                <button
+                  onClick={() => dispatch({ type: "INCREMENT", attribute })}
+                >
+                  +
+                </button>
+                <span>
+                  Modifier: {calculateModifier(attributes[attribute])}
+                </span>
+              </div>
+            ))}
+          </section>
+          <section className="column">
+            <h2>Classes</h2>
+            {Object.keys(CLASS_LIST).map((className) => (
+              <div key={className}>{className}</div>
+            ))}
+          </section>
+          <section className="column">
+            <h2>Skills</h2>
+            {SKILL_LIST.map((skill) => (
+              <div key={skill.name}>
+                <span>{skill.name}</span>
+                <span>(Modifier: {skill.attributeModifier})</span>
+              </div>
+            ))}
+          </section>
+        </div>
       </main>
     </div>
   );
