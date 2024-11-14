@@ -15,9 +15,13 @@ export const useAttributes = () => {
       (sum, val) => sum + val,
       0
     );
-    if (totalPoints < 70) {
-      setAttributes((prev) => ({ ...prev, [attribute]: prev[attribute] + 1 }));
+
+    if (totalPoints >= 70) {
+      alert("Maximum points (70) reached! You cannot add more points.");
+      return;
     }
+
+    setAttributes((prev) => ({ ...prev, [attribute]: prev[attribute] + 1 }));
   };
 
   const decrementAttribute = (attribute: keyof Attributes) => {
