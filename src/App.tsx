@@ -29,6 +29,10 @@ const reducer = (state: Attributes, action: Action): Attributes => {
   }
 };
 
+const calculateModifier = (value: number) => {
+  return Math.floor((value - 10) / 2);
+};
+
 function App() {
   const [attributes, dispatch] = useReducer(reducer, initialAttributes);
 
@@ -37,7 +41,28 @@ function App() {
       <header className="App-header">
         <h1>React Coding Exercise</h1>
       </header>
-      <main className="App-main"></main>
+      <main className="App-main">
+        <section>
+          <h2>Attributes</h2>
+          {ATTRIBUTE_LIST.map((attribute) => (
+            <div key={attribute}>
+              <h3>{attribute}</h3>
+              <button
+                onClick={() => dispatch({ type: "DECREMENT", attribute })}
+              >
+                -
+              </button>
+              <span>{attributes[attribute]}</span>
+              <button
+                onClick={() => dispatch({ type: "INCREMENT", attribute })}
+              >
+                +
+              </button>
+              <span>Modifier: {calculateModifier(attributes[attribute])}</span>
+            </div>
+          ))}
+        </section>
+      </main>
     </div>
   );
 }
