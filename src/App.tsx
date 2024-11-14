@@ -1,7 +1,13 @@
-import { useState } from 'react';
-import './App.css';
-import { ATTRIBUTE_LIST, CLASS_LIST, SKILL_LIST } from './consts.js';
+import { useState } from "react";
+import "./App.css";
 
+type Action =
+  | { type: "INCREMENT"; attribute: string }
+  | { type: "DECREMENT"; attribute: string };
+
+type Attributes = {
+  [key: string]: number;
+};
 
 function App() {
   const [num, setNum] = useState<number>(0);
