@@ -1,6 +1,6 @@
 import { useReducer } from "react";
 import "./App.css";
-import { ATTRIBUTE_LIST, CLASS_LIST } from "./consts";
+import { ATTRIBUTE_LIST, CLASS_LIST, SKILL_LIST } from "./consts";
 
 type Action =
   | { type: "INCREMENT"; attribute: string }
@@ -66,6 +66,15 @@ function App() {
           <h2>Classes</h2>
           {Object.keys(CLASS_LIST).map((className) => (
             <div key={className}>{className}</div>
+          ))}
+        </section>
+        <section>
+          <h2>Skills</h2>
+          {SKILL_LIST.map((skill) => (
+            <div key={skill.name}>
+              <span>{skill.name}</span>
+              <span>(Modifier: {skill.attributeModifier})</span>
+            </div>
           ))}
         </section>
       </main>
