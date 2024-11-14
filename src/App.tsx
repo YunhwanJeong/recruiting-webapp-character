@@ -1,18 +1,15 @@
 import { useReducer, useState } from "react";
 import "./App.css";
 import { ATTRIBUTE_LIST, CLASS_LIST, SKILL_LIST } from "./consts";
+import { Attributes } from "./types";
 
 type Action =
   | { type: "INCREMENT"; attribute: string }
   | { type: "DECREMENT"; attribute: string };
 
-type Attributes = {
-  [key: string]: number;
-};
-
 const initialAttributes: Attributes = ATTRIBUTE_LIST.reduce(
   (acc, attr) => ({ ...acc, [attr]: 10 }),
-  {}
+  {} as Attributes
 );
 
 const reducer = (state: Attributes, action: Action): Attributes => {
