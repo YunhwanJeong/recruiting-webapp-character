@@ -46,8 +46,8 @@ function App() {
           <section className="column">
             <h2>Attributes</h2>
             {ATTRIBUTE_LIST.map((attribute) => (
-              <div key={attribute}>
-                <h3>{attribute}</h3>
+              <div key={attribute} className="attribute-row">
+                <strong>{attribute}: </strong>
                 <button
                   onClick={() => dispatch({ type: "DECREMENT", attribute })}
                 >

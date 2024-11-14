@@ -62,3 +62,9 @@
   padding: 15px;
   border-radius: 8px;
 }
+
+.attribute-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
