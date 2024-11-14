@@ -37,7 +37,7 @@ function App() {
       <header className="App-header">
         <h1>React Coding Exercise</h1>
       </header>
-      <section className="App-section"></section>
+      <main className="App-main"></main>
     </div>
   );
 }
