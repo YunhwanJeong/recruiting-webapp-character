@@ -1,6 +1,6 @@
 import { useReducer } from "react";
 import "./App.css";
-import { ATTRIBUTE_LIST } from "./consts";
+import { ATTRIBUTE_LIST, CLASS_LIST } from "./consts";
 
 type Action =
   | { type: "INCREMENT"; attribute: string }
@@ -60,6 +60,12 @@ function App() {
               </button>
               <span>Modifier: {calculateModifier(attributes[attribute])}</span>
             </div>
+          ))}
+        </section>
+        <section>
+          <h2>Classes</h2>
+          {Object.keys(CLASS_LIST).map((className) => (
+            <div key={className}>{className}</div>
           ))}
         </section>
       </main>
