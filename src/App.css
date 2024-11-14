@@ -46,7 +46,14 @@
 .column {
   background-color: var(--bg-color);
   color: white;
-  padding: 15px;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.column-full {
+  background-color: var(--bg-color);
+  grid-column: span 3;
+  padding: 12px;
   border-radius: 8px;
 }
 

@@ -70,8 +70,10 @@ function App() {
     initialSkillPoints
   );
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+  const [selectedSkill, setSelectedSkill] = useState<string>("");
+  const [difficultyClass, setDifficultyClass] = useState<number>(0);
+  const [rollResult, setRollResult] = useState<string | null>(null);
 
-  // Calculate available skill points based on Intelligence modifier
   const intelligenceModifier = calculateModifier(attributes["Intelligence"]);
   const totalSkillPoints = 10 + 4 * intelligenceModifier;
   const usedSkillPoints = Object.values(skillPoints).reduce(
@@ -97,6 +99,24 @@ function App() {
     dispatchSkillPoints({ type: "DECREMENT_SKILL", skill: skillName });
   };
 
+  const performSkillCheck = () => {
+    if (selectedSkill) {
+      // Ensure `selectedSkill` exists in the attributes
+      const skill = SKILL_LIST.find((s) => s.name === selectedSkill);
+      if (skill) {
+        const modifier = calculateModifier(
+          attributes[skill.attributeModifier] || 0
+        );
+        const roll = Math.floor(Math.random() * 20) + 1;
+        const total = roll + modifier + (skillPoints[selectedSkill] || 0);
+        const success = total >= difficultyClass;
+        setRollResult(
+          `Roll: ${roll}, Total: ${total} - ${success ? "Success" : "Failure"}`
+        );
+      }
+    }
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -104,6 +124,33 @@ function App() {
       </header>
       <main className="App-main">
         <div className="container">
+          <section className="column-full">
+            <h2>Skill Check</h2>
+            <label>
+              Select Skill:
+              <select
+                value={selectedSkill}
+                onChange={(e) => setSelectedSkill(e.target.value)}
+              >
+                <option value="">Select Skill</option>
+                {SKILL_LIST.map((skill) => (
+                  <option key={skill.name} value={skill.name}>
+                    {skill.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Difficulty Class (DC):
+              <input
+                type="number"
+                value={difficultyClass}
+                onChange={(e) => setDifficultyClass(Number(e.target.value))}
+              />
+            </label>
+            <button onClick={performSkillCheck}>Roll</button>
+            {rollResult && <p>{rollResult}</p>}
+          </section>
           <section className="column">
             <h2>Attributes</h2>
             {ATTRIBUTE_LIST.map((attribute) => (
