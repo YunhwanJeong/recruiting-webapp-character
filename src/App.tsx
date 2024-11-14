@@ -1,11 +1,11 @@
 import { useReducer, useState } from "react";
 import "./App.css";
 import { ATTRIBUTE_LIST, CLASS_LIST, SKILL_LIST } from "./consts";
-import { Attributes } from "./types";
+import { Attributes, Class } from "./types";
 
 type Action =
-  | { type: "INCREMENT"; attribute: string }
-  | { type: "DECREMENT"; attribute: string };
+  | { type: "INCREMENT"; attribute: keyof Attributes }
+  | { type: "DECREMENT"; attribute: keyof Attributes };
 
 const initialAttributes: Attributes = ATTRIBUTE_LIST.reduce(
   (acc, attr) => ({ ...acc, [attr]: 10 }),
@@ -26,15 +26,15 @@ const reducer = (state: Attributes, action: Action): Attributes => {
   }
 };
 
-const calculateModifier = (value: number) => {
+const calculateModifier = (value: Attributes[keyof Attributes]) => {
   return Math.floor((value - 10) / 2);
 };
 
 function App() {
   const [attributes, dispatch] = useReducer(reducer, initialAttributes);
-  const [selectedClass, setSelectedClass] = useState<string | null>(null);
+  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
 
-  const meetsClassRequirements = (className: string) => {
+  const meetsClassRequirements = (className: Class) => {
     const classRequirements = CLASS_LIST[className];
     return ATTRIBUTE_LIST.every(
       (attr) => attributes[attr] >= classRequirements[attr]
@@ -72,7 +72,7 @@ function App() {
           </section>
           <section className="column">
             <h2>Classes</h2>
-            {Object.keys(CLASS_LIST).map((className) => (
+            {(Object.keys(CLASS_LIST) as Class[]).map((className) => (
               <div
                 key={className}
                 className={`class-item ${
